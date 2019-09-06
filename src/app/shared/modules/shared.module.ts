@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { HeaderComponent } from '../layout/header/header.component';
 import { FooterComponent } from '../layout/footer/footer.component';
 import { FullLayoutComponent } from '../layout/full-layout/full-layout.component';
+import { MaterialModule } from './material.module';
 
 @NgModule({
 	declarations: [
@@ -17,8 +18,10 @@ import { FullLayoutComponent } from '../layout/full-layout/full-layout.component
 	imports: [
 		RouterModule,
 		CommonModule,
+		MaterialModule
 	],
 	exports: [
+		MaterialModule
 	],
 	providers: [
 	]
