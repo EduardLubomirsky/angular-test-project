@@ -24,21 +24,25 @@ export class StoreService {
             id: 1,
             title: 'Macbook Pro',
             price: 1300,
+            inChart: false,
         },
         {
             id: 2,
             title: 'Iphone X',
-            price: 800
+            price: 800,
+            inChart: false,
         },
         {
             id: 3,
             title: 'Samsung Tv',
-            price: 2800
+            price: 2800,
+            inChart: false,
         },
         {
             id: 4,
             title: 'Sony PS4',
             price: 500,
+            inChart: false,
         }
     ];
 

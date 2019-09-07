@@ -1,0 +1,8 @@
+.product-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+}
+.product-card {
+    width: calc(33.3% - 20px);
+    margin: 10px;
+}

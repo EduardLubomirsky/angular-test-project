@@ -8,10 +8,12 @@ import { SharedModule } from '../shared/modules/shared.module';
 
 // Components
 import { StoreComponent } from './store/store.component';
+import { ProductItemComponent } from './product-item/product-item.component';
 
 @NgModule({
   declarations: [
-    StoreComponent
+    StoreComponent,
+    ProductItemComponent,
   ],
   imports: [
     SharedModule,

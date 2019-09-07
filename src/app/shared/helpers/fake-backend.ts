@@ -6,8 +6,11 @@ import { delay, mergeMap, materialize, dematerialize } from 'rxjs/operators';
 
 // Services
 import { StoreService } from '../services'
+import { Chart } from '../models';
 
 let users = JSON.parse(localStorage.getItem('users')) || [];
+let chart: Chart[] = JSON.parse(localStorage.getItem('chart')) || [];
+
 
 @Injectable()
 export class FakeBackendInterceptor implements HttpInterceptor {
@@ -21,6 +24,23 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const { url, method, headers, body } = request;
         const handleRoute = () => {
+
+            const getAllProducts = () => {
+                // if product exist in chart set inChart as true
+                this.storeService.products.map((x) => {
+                    chart.map((y) => {
+                        if (x.id === y.productId) {
+                            x.inChart = true;
+                        }
+                    });
+                });
+                return ok(this.storeService.products);
+            }
+
+            const getChartItem = () => {
+                
+            } 
+
             switch (true) {
                 case url.endsWith('/users/authenticate') && method === 'POST':
                     return authenticate();
@@ -29,7 +49,9 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                 case url.endsWith('/users') && method === 'GET':
                     return getUsers();
                 case url.endsWith('/products/getAll') && method === 'GET':
-                    return ok(this.storeService.products);
+                    return getAllProducts();
+                case url.endsWith('/chart/addNew') && method === 'POST':
+                    return addNewItemToChart();
                 case url.match(/\/users\/\d+$/) && method === 'DELETE':
                     return deleteUser();
                 default:
@@ -103,6 +125,20 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         function idFromUrl() {
             const urlParts = url.split('/');
             return parseInt(urlParts[urlParts.length - 1]);
+        }
+
+        // const getChartItems = (userId) => {
+        //     const chartForUser = chart.find(x => x.userId === userId);
+        // }
+
+        function addNewItemToChart() {
+            const { user, product } = body;
+            chart.push({
+                productId: product.id,
+                userId: user.id
+            });
+            localStorage.setItem('chart', JSON.stringify(chart));
+            return ok(product);
         }
     }
 }
