@@ -4,8 +4,8 @@
         <a class="nav-item nav-link" routerLink="/auth/registration">Registration</a>
     </div>
     <div class="navbar-nav d-flex w-100" *ngIf="currentUser">
-        <a class="nav-item nav-link" routerLink="/auth/login">{{currentUser.username}}</a>
-        <a class="nav-item nav-link" routerLink="/chart">Chart <span>(2)</span></a>
+        <a class="nav-item nav-link" routerLink="/auth/login">{{currentUser.email}}</a>
+        <a class="nav-item nav-link" routerLink="/cart">Cart <span>({{cartCount}})</span></a>
         <button class="btn nav-item nav-link ml-auto" (click)="logout()">Log out</button>
     </div>
 </nav>

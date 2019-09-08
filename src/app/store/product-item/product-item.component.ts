@@ -1,6 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Product, User } from 'src/app/shared/models';
-import { ChartService, AuthenticationService } from 'src/app/shared/services';
+import { CartService, AuthenticationService } from 'src/app/shared/services';
 import { Router } from '@angular/router';
 
 @Component({
@@ -10,22 +10,25 @@ import { Router } from '@angular/router';
 })
 export class ProductItemComponent {
   @Input('product') product: Product;
+
   public currentUser: User;
 
   constructor(
-    public chartService: ChartService,
+    public cartService: CartService,
     public authenticationService: AuthenticationService,
     public router: Router
   ) {
     this.currentUser = this.authenticationService.currentUserValue;
   }
 
-  public addToChart() {
-    if (this.product.inChart) {
-      this.router.navigate(['chart']);
+  public addToCart() {
+    if (this.product.inCart) {
+      this.router.navigate(['cart']);
     } else {
-      this.chartService.addToChart(this.product, this.currentUser).subscribe(res => {
-        this.product.inChart = true;
+      this.cartService.addToCart(this.product, this.currentUser).subscribe(res => {
+        this.product.inCart = true;
+        this.cartService.dataSource.next(this.cartService.dataSource.getValue().concat([this.product]));
+
       });
     }
   }

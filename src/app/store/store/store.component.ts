@@ -1,5 +1,5 @@
 // Vendors
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 // Models
 import { Product } from '../../shared/models'
@@ -28,13 +28,11 @@ export class StoreComponent {
     });
   }
 
-  public addToChart(product: Product) {
-    if(product.inChart) {
-      this.router.navigate(['chart']);
+  public addToCart(product: Product) {
+    if(product.inCart) {
+      this.router.navigate(['cart']);
     } else {
-      product.inChart = true;
-      // add to chart
+      product.inCart = true;
     }
   }
-
 }

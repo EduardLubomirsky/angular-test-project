@@ -4,7 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 // Components
 import { FullLayoutComponent } from '../shared/layout/full-layout/full-layout.component';
-import { ChartComponent } from './chart/chart.component';
+import { CartComponent } from './cart/cart.component';
 
 // Helpers
 import { AuthGuard } from '../shared/helpers';
@@ -15,7 +15,7 @@ const routes: Routes = [
 		component: FullLayoutComponent,
 		canActivate: [AuthGuard],
 		children: [
-			{ path: '', component: ChartComponent },
+			{ path: '', component: CartComponent },
 		]
 	}
 ];
@@ -29,4 +29,4 @@ const routes: Routes = [
 	]
 })
 
-export class ChartRoutingModule { }
+export class CartRoutingModule { }

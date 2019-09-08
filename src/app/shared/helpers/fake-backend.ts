@@ -6,15 +6,40 @@ import { delay, mergeMap, materialize, dematerialize } from 'rxjs/operators';
 
 // Services
 import { StoreService } from '../services'
-import { Chart } from '../models';
+import { Cart, Product } from '../models';
+import { CartResponse } from '../models/cart-response.model';
 
 let users = JSON.parse(localStorage.getItem('users')) || [];
-let chart: Chart[] = JSON.parse(localStorage.getItem('chart')) || [];
 
 
 @Injectable()
 export class FakeBackendInterceptor implements HttpInterceptor {
-
+    public products: Product[] = [
+        {
+            id: 1,
+            title: 'Macbook Pro',
+            price: 1300,
+            inCart: false,
+        },
+        {
+            id: 2,
+            title: 'Iphone X',
+            price: 800,
+            inCart: false,
+        },
+        {
+            id: 3,
+            title: 'Samsung Tv',
+            price: 2800,
+            inCart: false,
+        },
+        {
+            id: 4,
+            title: 'Sony PS4',
+            price: 500,
+            inCart: false,
+        }
+    ];
     constructor(
         public storeService: StoreService
     ) {
@@ -26,20 +51,64 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         const handleRoute = () => {
 
             const getAllProducts = () => {
-                // if product exist in chart set inChart as true
-                this.storeService.products.map((x) => {
-                    chart.map((y) => {
+                const cart: Cart[] = JSON.parse(localStorage.getItem('cart')) || [];
+                // if product exist in cart set inCart as true
+                this.products.map((x) => {
+                    x.inCart = false;
+                    cart.map((y) => {
                         if (x.id === y.productId) {
-                            x.inChart = true;
+                            x.inCart = true;
                         }
                     });
                 });
-                return ok(this.storeService.products);
+                return ok(this.products);
             }
 
-            const getChartItem = () => {
-                
-            } 
+            const getCartItems = () => {
+                const cart: Cart[] = JSON.parse(localStorage.getItem('cart')) || [];
+                const userId = this.getIdFromUrl(url);
+                let cartItems: CartResponse[] = cart.map(c => {
+                    return {
+                        cartItem: c,
+                        productItem: this.products.find(p => p.id === c.productId)
+                    }
+                })
+                return ok(cartItems);
+            }
+
+            const removeFromCart = () => {
+                const cart: Cart[] = JSON.parse(localStorage.getItem('cart')) || [];
+                const { userId, productId } = body;
+                const index = cart.findIndex((x) => {
+                    if (x.productId === productId && userId === x.userId) {
+                        return true;
+                    }
+                })
+                const removedItem = cart.splice(index, 1);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                return ok(removedItem);
+            }
+
+            const getCartCount = () => {
+                const cart: Cart[] = JSON.parse(localStorage.getItem('cart')) || [];
+                const userId = +this.getIdFromUrl(url)
+                const filteredCart = cart.filter(x => x.userId === userId);
+                return ok(filteredCart.length);
+            }
+
+            const clearAll = () => {
+                const cart: Cart[] = JSON.parse(localStorage.getItem('cart')) || [];
+                const userId = +this.getIdFromUrl(url)
+                let i = cart.length;
+                while (i--) {
+                    const index = cart.findIndex(c => cart[i].userId === userId);
+                    if (index !== -1) {
+                        cart.splice(index, 1);
+                    }
+                }   
+                localStorage.setItem('cart', JSON.stringify(cart));
+                return ok(cart);
+            }
 
             switch (true) {
                 case url.endsWith('/users/authenticate') && method === 'POST':
@@ -48,10 +117,18 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                     return register();
                 case url.endsWith('/users') && method === 'GET':
                     return getUsers();
+                case url.includes('/cart/getCartProducts') && method === 'GET':
+                    return getCartItems();
+                case url.endsWith('/cart/addNew') && method === 'POST':
+                    return addNewItemToCart();
+                case url.includes('/cart/getCartCount') && method === 'GET':
+                    return getCartCount();
+                case url.endsWith('/cart/removeFromCart') && method === 'POST':
+                    return removeFromCart();
+                case url.includes('/cart/clearAll') && method === 'GET':
+                    return clearAll();
                 case url.endsWith('/products/getAll') && method === 'GET':
                     return getAllProducts();
-                case url.endsWith('/chart/addNew') && method === 'POST':
-                    return addNewItemToChart();
                 case url.match(/\/users\/\d+$/) && method === 'DELETE':
                     return deleteUser();
                 default:
@@ -74,6 +151,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                 username: user.username,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                email: user.email,
                 token: 'fake-jwt-token'
             })
         }
@@ -83,7 +161,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             if (users.find(x => x.email === user.email)) {
                 return error('Username "' + user.email + '" is already taken')
             }
-
             user.id = users.length ? Math.max(...users.map(x => x.id)) + 1 : 1;
             users.push(user);
             localStorage.setItem('users', JSON.stringify(users));
@@ -127,19 +204,24 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             return parseInt(urlParts[urlParts.length - 1]);
         }
 
-        // const getChartItems = (userId) => {
-        //     const chartForUser = chart.find(x => x.userId === userId);
+        // const getCartItems = (userId) => {
+        //     const cartForUser = cart.find(x => x.userId === userId);
         // }
 
-        function addNewItemToChart() {
+        function addNewItemToCart() {
+            const cart: Cart[] = JSON.parse(localStorage.getItem('cart')) || [];
             const { user, product } = body;
-            chart.push({
+            cart.push({
                 productId: product.id,
-                userId: user.id
+                userId: user.id,
             });
-            localStorage.setItem('chart', JSON.stringify(chart));
+            localStorage.setItem('cart', JSON.stringify(cart));
             return ok(product);
         }
+    }
+
+    private getIdFromUrl(url: string): string {
+        return url.substring(url.lastIndexOf('/') + 1);
     }
 }
 

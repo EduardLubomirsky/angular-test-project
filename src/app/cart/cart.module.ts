@@ -3,24 +3,24 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Modules
-import { ChartRoutingModule } from './chart-routing.module';
+import { CartRoutingModule } from './cart-routing.module';
 import { SharedModule } from '../shared/modules/shared.module';
 
 // Components
-import { ChartComponent } from './chart/chart.component';
+import { CartComponent } from './cart/cart.component';
 
 
 
 @NgModule({
 	declarations: [
-		ChartComponent
+		CartComponent
 	],
 	imports: [
 		CommonModule,
-		ChartRoutingModule,
+		CartRoutingModule,
 		SharedModule
 	],
 	providers: [
 	],
 })
-export class ChartModule { }
+export class CartModule { }
