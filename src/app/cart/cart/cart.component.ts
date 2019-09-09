@@ -1,8 +1,11 @@
+// Vendors
 import { Component } from '@angular/core';
-import { User, Cart } from 'src/app/shared/models';
+
+// Models
+import { User, CartResponse } from 'src/app/shared/models';
+
+// Services
 import { AuthenticationService, CartService } from 'src/app/shared/services';
-import { CartResponse } from 'src/app/shared/models/cart-response.model';
-import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-cart',
@@ -41,7 +44,7 @@ export class CartComponent {
     }, 0);
   }
 
-  public removeFromCart(userId, productId) {
+  public removeFromCart(userId: number, productId: number) {
     this.cartService.removeFromCart(userId, productId).subscribe((res) => {
       const index = this.cartItems.findIndex((x) => x.productItem.id === res[0].productId);
       this.cartItems.splice(index, 1);
@@ -50,7 +53,7 @@ export class CartComponent {
     })
   }
 
-  public clearAllCart(userId) {
+  public clearAllCart(userId: number) {
     this.cartService.clearAll(userId).subscribe((res) => {
       this.cartItems = [];
       this.cartService.dataSource.next(this.cartItems);

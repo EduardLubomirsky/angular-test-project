@@ -1,6 +1,6 @@
 // Vendors
 import { Injectable } from '@angular/core';
-import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { Router, CanActivate, ActivatedRouteSnapshot } from '@angular/router';
 
 // Services
 import { AuthenticationService } from '../services';

@@ -23,8 +23,6 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 		ReactiveFormsModule,
         AuthRoutingModule,
         SharedModule
-	],
-	providers: [
-	],
+	]
 })
 export class AuthModule { }

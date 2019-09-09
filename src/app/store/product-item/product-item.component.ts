@@ -1,7 +1,10 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+// Vendors
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Product, User } from 'src/app/shared/models';
-import { CartService, AuthenticationService } from 'src/app/shared/services';
 import { Router } from '@angular/router';
+
+// Services
+import { CartService, AuthenticationService } from 'src/app/shared/services';
 
 @Component({
   selector: 'app-product-item',
@@ -10,7 +13,7 @@ import { Router } from '@angular/router';
 })
 export class ProductItemComponent {
   @Input('product') product: Product;
-
+  @Output('onAddToCart') onAddToCart: EventEmitter<Product> = new EventEmitter();
   public currentUser: User;
 
   constructor(
@@ -27,7 +30,7 @@ export class ProductItemComponent {
     } else {
       this.cartService.addToCart(this.product, this.currentUser).subscribe(res => {
         this.product.inCart = true;
-        this.cartService.dataSource.next(this.cartService.dataSource.getValue().concat([this.product]));
+        this.onAddToCart.emit(this.product);
       });
     }
   }

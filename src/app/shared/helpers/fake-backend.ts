@@ -6,8 +6,9 @@ import { delay, mergeMap, materialize, dematerialize } from 'rxjs/operators';
 
 // Services
 import { StoreService } from '../services'
-import { Cart, Product } from '../models';
-import { CartResponse } from '../models/cart-response.model';
+
+// Models
+import { Cart, Product, CartResponse } from '../models';
 
 let users = JSON.parse(localStorage.getItem('users')) || [];
 
@@ -38,6 +39,12 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             title: 'Sony PS4',
             price: 500,
             inCart: false,
+        },
+        {
+            id: 5,
+            title: 'Samsung Galaxy',
+            price: 600,
+            inCart: false,
         }
     ];
     constructor(
@@ -51,12 +58,13 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         const handleRoute = () => {
 
             const getAllProducts = () => {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
                 const cart: Cart[] = JSON.parse(localStorage.getItem('cart')) || [];
                 // if product exist in cart set inCart as true
                 this.products.map((x) => {
                     x.inCart = false;
                     cart.map((y) => {
-                        if (x.id === y.productId) {
+                        if (x.id === y.productId && y.userId === currentUser.id) {
                             x.inCart = true;
                         }
                     });
@@ -66,14 +74,19 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
             const getCartItems = () => {
                 const cart: Cart[] = JSON.parse(localStorage.getItem('cart')) || [];
-                const userId = this.getIdFromUrl(url);
-                let cartItems: CartResponse[] = cart.map(c => {
+                const userId = +this.getIdFromUrl(url);
+                let cartItems: Cart[] = cart.filter(c => {
+                    if (c.userId === userId) {
+                        return c
+                    };
+                });
+                const cartResponse: CartResponse[] = cartItems.map((x) => {
                     return {
-                        cartItem: c,
-                        productItem: this.products.find(p => p.id === c.productId)
+                        cartItem: x,
+                        productItem: this.products.find(p => p.id === x.productId)
                     }
                 })
-                return ok(cartItems);
+                return ok(cartResponse);
             }
 
             const removeFromCart = () => {
@@ -125,17 +138,56 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                 });
                 localStorage.setItem('users', JSON.stringify(users));
                 const result = users.find(x => x.email === email);
-                debugger;
                 return ok(result);
             }
-
+            const authenticate = () => {
+                const { email, password } = body;
+                const user = users.find(x => x.email === email && x.password === password);
+                if (!user) return error('Email or password is incorrect');
+                return ok({
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    token: 'fake-jwt-token'
+                })
+            }
+    
+            const register = () => {
+                const user = body
+                if (users.find(x => x.email === user.email)) {
+                    return error('Email "' + user.email + '" is already taken')
+                }
+                user.id = users.length ? Math.max(...users.map(x => x.id)) + 1 : 1;
+                users.push(user);
+                localStorage.setItem('users', JSON.stringify(users));
+    
+                return ok();
+            }
+    
+            const ok = (body?) => {
+                return of(new HttpResponse({ status: 200, body }))
+            }
+    
+            const error = (message) => {
+                return throwError({ error: { message } });
+            }
+    
+            const addNewItemToCart = () => {
+                const cart: Cart[] = JSON.parse(localStorage.getItem('cart')) || [];
+                const { user, product } = body;
+                cart.push({
+                    productId: product.id,
+                    userId: user.id,
+                });
+                localStorage.setItem('cart', JSON.stringify(cart));
+                return ok(product);
+            }
             switch (true) {
                 case url.endsWith('/users/authenticate') && method === 'POST':
                     return authenticate();
                 case url.endsWith('/users/register') && method === 'POST':
                     return register();
-                case url.endsWith('/users') && method === 'GET':
-                    return getUsers();
                 case url.endsWith('/users/getUserByEmail') && method === 'POST':
                     return getUserByEmail();
                 case url.endsWith('/users/resetPassword') && method === 'POST':
@@ -152,8 +204,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                     return clearAll();
                 case url.endsWith('/products/getAll') && method === 'GET':
                     return getAllProducts();
-                case url.match(/\/users\/\d+$/) && method === 'DELETE':
-                    return deleteUser();
                 default:
                     return next.handle(request);
             }
@@ -164,83 +214,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             .pipe(materialize())
             .pipe(delay(500))
             .pipe(dematerialize());
-
-        function authenticate() {
-            const { email, password } = body;
-            const user = users.find(x => x.email === email && x.password === password);
-            if (!user) return error('Username or password is incorrect');
-            return ok({
-                id: user.id,
-                username: user.username,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                token: 'fake-jwt-token'
-            })
-        }
-
-        function register() {
-            const user = body
-            if (users.find(x => x.email === user.email)) {
-                return error('Username "' + user.email + '" is already taken')
-            }
-            user.id = users.length ? Math.max(...users.map(x => x.id)) + 1 : 1;
-            users.push(user);
-            localStorage.setItem('users', JSON.stringify(users));
-
-            return ok();
-        }
-
-        function getUsers() {
-            if (!isLoggedIn()) return unauthorized();
-            return ok(users);
-        }
-
-        function deleteUser() {
-            if (!isLoggedIn()) return unauthorized();
-
-            users = users.filter(x => x.id !== idFromUrl());
-            localStorage.setItem('users', JSON.stringify(users));
-            return ok();
-        }
-
-        // helper functions
-
-        function ok(body?) {
-            return of(new HttpResponse({ status: 200, body }))
-        }
-
-        function error(message) {
-            return throwError({ error: { message } });
-        }
-
-        function unauthorized() {
-            return throwError({ status: 401, error: { message: 'Unauthorised' } });
-        }
-
-        function isLoggedIn() {
-            return headers.get('Authorization') === 'Bearer fake-jwt-token';
-        }
-
-        function idFromUrl() {
-            const urlParts = url.split('/');
-            return parseInt(urlParts[urlParts.length - 1]);
-        }
-
-        // const getCartItems = (userId) => {
-        //     const cartForUser = cart.find(x => x.userId === userId);
-        // }
-
-        function addNewItemToCart() {
-            const cart: Cart[] = JSON.parse(localStorage.getItem('cart')) || [];
-            const { user, product } = body;
-            cart.push({
-                productId: product.id,
-                userId: user.id,
-            });
-            localStorage.setItem('cart', JSON.stringify(cart));
-            return ok(product);
-        }
     }
 
     private getIdFromUrl(url: string): string {

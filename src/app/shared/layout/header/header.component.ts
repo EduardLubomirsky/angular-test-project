@@ -25,7 +25,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     });
 
     this.subscription = this.cartService.dataSource.subscribe((res) => {
-      this.cartCount = res.length
+      this.cartCount = res.length;
     });
   }
 
@@ -38,6 +38,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.cartService.dataSource.next([]);
     if (this.subscription) {
       this.subscription.unsubscribe();
     }

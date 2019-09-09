@@ -7,8 +7,10 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 // Models
-import { Product, User, Cart } from '../models';
-import { CartResponse } from '../models/cart-response.model';
+import { Product, User, Cart, CartResponse } from '../models';
+
+// Service
+import { AuthenticationService } from './authentification.service';
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +20,8 @@ export class CartService {
     public dataSource = new BehaviorSubject([]);
 
     constructor(
-        public http: HttpClient
+        public http: HttpClient,
+        public authService: AuthenticationService
     ) {
 
     }

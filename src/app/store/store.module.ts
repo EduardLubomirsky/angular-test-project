@@ -19,8 +19,6 @@ import { ProductItemComponent } from './product-item/product-item.component';
     SharedModule,
     CommonModule,
     StoreRoutingModule
-  ],
-  providers: [
-  ],
+  ]
 })
 export class StoreModule { }

@@ -1,10 +1,10 @@
 // Vendors
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { FormGroup, Validators, FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 
 //Services
 import { UserService } from 'src/app/shared/services';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-reset-password',
@@ -32,17 +32,9 @@ export class ResetPasswordComponent implements OnInit {
     }, this.passwordMatchValidator.bind(this));
   }
 
+  get f() { return this.resetForm.controls; }
 
-  public passwordMatchValidator(g: FormGroup): object {
-    if (g.controls['password'].value === g.controls['repeatPassword'].value) {
-      return null;
-    }
-    return {
-      'mismatch': true
-    };
-  }
-
-  onSubmit() {
+  public onSubmit() {
     this.submitted = true;
     if (this.resetForm.invalid) {
       return;
@@ -52,12 +44,23 @@ export class ResetPasswordComponent implements OnInit {
     })
      
   }
+
+  // Password match validator
+  public passwordMatchValidator(g: FormGroup): object {
+    if (g.controls['password'].value === g.controls['repeatPassword'].value) {
+      return null;
+    }
+    return {
+      'mismatch': true
+    };
+  }
+
+  // Async user validator
   public asyncUserValidator(control: FormControl): Promise<any> {
     return new Promise((resolve, reject) => {
       if (control.value ) {
         this.userService.getUserByEmail(control.value)
           .subscribe((res: any) => {
-            debugger;
             if (res) {
               resolve(null);
             } else {
@@ -69,5 +72,4 @@ export class ResetPasswordComponent implements OnInit {
       }
     });
   }
-  get f() { return this.resetForm.controls; }
 }
