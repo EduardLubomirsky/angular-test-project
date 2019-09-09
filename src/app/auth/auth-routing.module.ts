@@ -6,6 +6,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { FullLayoutComponent } from '../shared/layout/full-layout/full-layout.component';
 import { LoginComponent } from './login/login.component';
 import { RegistrationComponent } from './registration/registration.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 const routes: Routes = [
 	{
@@ -14,6 +15,7 @@ const routes: Routes = [
 		children: [
 			{ path: 'login', component:  LoginComponent },
 			{ path: 'registration', component:  RegistrationComponent },
+			{ path: 'reset-password', component: ResetPasswordComponent },
 			{ path: '**', redirectTo: 'login' }
 		]
 	}

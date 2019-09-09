@@ -10,3 +10,23 @@
 .mat-form-field-wrapper {
     width: 100% !important;
 }
+
+.invalid-feedback {
+    display: block;
+}
+a:hover {
+    text-decoration: none !important;
+}
+.mat-form-field-wrapper {
+    padding-bottom: 10px !important;
+}
+
+input {
+    box-shadow: none !important;
+
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}

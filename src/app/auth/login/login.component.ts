@@ -11,10 +11,11 @@ import { AuthenticationService } from '../../shared/services';
     styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
-    loginForm: FormGroup;
-    loading = false;
-    submitted = false;
-    returnUrl: string;
+    public loginForm: FormGroup;
+    public loading = false;
+    public submitted = false;
+    public returnUrl: string;
+    public errorMessage: string = '';
 
     constructor(
         private formBuilder: FormBuilder,
@@ -30,12 +31,10 @@ export class LoginComponent implements OnInit {
     }
 
     ngOnInit() {
-        // let passwordRegEx = '^(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).*$';
+        let passwordRegEx = '^(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).*$';
         this.loginForm = this.formBuilder.group({
             email: ['', [Validators.required, Validators.email]],
-            password: ['', [
-                Validators.required,
-                // Validators.pattern(passwordRegEx)
+            password: ['', [Validators.required, Validators.minLength(8)
             ]]
         });
 
@@ -59,7 +58,7 @@ export class LoginComponent implements OnInit {
                     this.router.navigate(['store']);
                 },
                 error => {
-                    // this.alertService.error(error);
+                    this.errorMessage = error;
                     this.loading = false;
                 });
     }

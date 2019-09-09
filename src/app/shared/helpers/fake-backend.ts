@@ -105,9 +105,28 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                     if (index !== -1) {
                         cart.splice(index, 1);
                     }
-                }   
+                }
                 localStorage.setItem('cart', JSON.stringify(cart));
                 return ok(cart);
+            }
+
+            const getUserByEmail = () => {
+                const { email } = body;
+                const result = users.find(x => x.email === email);
+                return ok(result);
+            }
+
+            const resetPassword = () => {
+                const { email, password } = body;
+                users.map((x) => {
+                    if (x.email === email) {
+                        x.password = password;
+                    }
+                });
+                localStorage.setItem('users', JSON.stringify(users));
+                const result = users.find(x => x.email === email);
+                debugger;
+                return ok(result);
             }
 
             switch (true) {
@@ -117,6 +136,10 @@ export class FakeBackendInterceptor implements HttpInterceptor {
                     return register();
                 case url.endsWith('/users') && method === 'GET':
                     return getUsers();
+                case url.endsWith('/users/getUserByEmail') && method === 'POST':
+                    return getUserByEmail();
+                case url.endsWith('/users/resetPassword') && method === 'POST':
+                    return resetPassword();
                 case url.includes('/cart/getCartProducts') && method === 'GET':
                     return getCartItems();
                 case url.endsWith('/cart/addNew') && method === 'POST':

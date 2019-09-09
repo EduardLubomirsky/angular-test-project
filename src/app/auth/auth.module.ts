@@ -1,6 +1,7 @@
 // Vendors
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 
 // Modules
 import { AuthRoutingModule } from './auth-routing.module';
@@ -9,12 +10,13 @@ import { SharedModule } from '../shared/modules/shared.module';
 // Components
 import { LoginComponent } from './login/login.component';
 import { RegistrationComponent } from './registration/registration.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 @NgModule({
 	declarations: [
         LoginComponent,
-        RegistrationComponent
+        RegistrationComponent,
+        ResetPasswordComponent
 	],
 	imports: [
 		CommonModule,

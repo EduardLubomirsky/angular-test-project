@@ -28,7 +28,6 @@ export class ProductItemComponent {
       this.cartService.addToCart(this.product, this.currentUser).subscribe(res => {
         this.product.inCart = true;
         this.cartService.dataSource.next(this.cartService.dataSource.getValue().concat([this.product]));
-
       });
     }
   }

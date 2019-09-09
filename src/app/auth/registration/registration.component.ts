@@ -27,14 +27,14 @@ export class RegistrationComponent implements OnInit {
     }
 
     ngOnInit() {
-        // let passwordRegEx = '^(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).*$';
+        let passwordRegEx = '^(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[@-_!#$%^&+=]).*$';
         this.registerForm = this.formBuilder.group({
             firstName: ['', Validators.required],
             lastName: ['', Validators.required],
             email: ['', [Validators.required, Validators.email]],
             password: ['', [
                 Validators.required,
-
+                Validators.pattern(passwordRegEx)
             ]]
         });
     }
